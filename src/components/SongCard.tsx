@@ -44,6 +44,17 @@ export function SongCard({ song, customMeta, onRemove, readOnly }: Props) {
 
       {expanded && (
         <div className="song-detail" onClick={e => e.stopPropagation()}>
+          {song.links.length > 0 && (
+            <div className="song-links-bar">
+              {song.links.map((link, i) => (
+                <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="song-link-btn">
+                  {getLinkIcon(link)}
+                  <span>{formatLinkLabel(link)}</span>
+                </a>
+              ))}
+            </div>
+          )}
+
           {song.vocalist.length > 0 && (
             <div className="song-detail-row">
               <span className="detail-label">Vocalist</span>
@@ -81,19 +92,6 @@ export function SongCard({ song, customMeta, onRemove, readOnly }: Props) {
             )
           })}
 
-          {song.links.length > 0 && (
-            <div className="song-detail-row">
-              <span className="detail-label">Links</span>
-              <div className="detail-values">
-                {song.links.map((link, i) => (
-                  <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="song-link">
-                    {formatLinkLabel(link)}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="song-detail-row">
             <span className="detail-label">Added</span>
             <span className="detail-date">{song.dateAdded}</span>
@@ -123,8 +121,33 @@ function formatLinkLabel(url: string): string {
     if (host.includes('soundcloud')) return 'SoundCloud'
     if (host.includes('apple')) return 'Apple Music'
     if (host.includes('bandcamp')) return 'Bandcamp'
+    if (host.includes('jiosaavn') || host.includes('saavn')) return 'JioSaavn'
+    if (host.includes('gaana')) return 'Gaana'
+    if (host.includes('wynk')) return 'Wynk'
     return host
   } catch {
     return url.slice(0, 30)
   }
+}
+
+function getLinkIcon(url: string): JSX.Element {
+  const label = formatLinkLabel(url)
+  const colors: Record<string, string> = {
+    YouTube: '#FF0000',
+    Spotify: '#1DB954',
+    SoundCloud: '#FF5500',
+    'Apple Music': '#FA243C',
+    Bandcamp: '#1DA0C3',
+    JioSaavn: '#2BC5B4',
+    Gaana: '#E72C30',
+    Wynk: '#1D1D2C',
+  }
+  const color = colors[label] || 'var(--accent)'
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+      <path d="M15 3h6v6" />
+      <path d="M10 14L21 3" />
+    </svg>
+  )
 }
