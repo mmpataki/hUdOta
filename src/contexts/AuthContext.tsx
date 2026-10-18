@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import { initAuth, requestToken, revokeToken, getAccessToken } from '../services/auth'
-import { GOOGLE_CLIENT_ID } from '../config'
+import { initAuth, requestToken, revokeToken, getAccessToken, restoreToken } from '../services/auth'
 
 interface AuthState {
   isSignedIn: boolean
@@ -43,7 +42,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setIsLoading(false)
           await fetchUserInfo()
         })
-        setIsLoading(false)
+        if (restoreToken()) {
+          setIsSignedIn(true)
+          setIsLoading(false)
+          fetchUserInfo()
+        } else {
+          setIsLoading(false)
+        }
       } else {
         setTimeout(waitForGsi, 100)
       }

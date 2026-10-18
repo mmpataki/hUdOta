@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import type { Song, MetaKey } from '../types'
+import { LANGUAGES } from '../types'
 import { TagInput } from './TagInput'
+import { TransliterateInput } from './TransliterateInput'
 
 interface Props {
   customMeta: MetaKey[]
@@ -11,11 +13,16 @@ interface Props {
 
 export function AddSongModal({ customMeta, allSongs, onAdd, onClose }: Props) {
   const [name, setName] = useState('')
+  const [nameRomanized, setNameRomanized] = useState('')
+  const [language, setLanguage] = useState('')
   const [tags, setTags] = useState<string[]>([])
   const [links, setLinks] = useState<string[]>([])
   const [vocalist, setVocalist] = useState<string[]>([])
   const [customValues, setCustomValues] = useState<Record<string, string[]>>({})
   const [saving, setSaving] = useState(false)
+
+  const selectedLang = LANGUAGES.find(l => l.code === language)
+  const itc = selectedLang && 'itc' in selectedLang ? selectedLang.itc : ''
 
   const tagSuggestions = useMemo(() => {
     const set = new Set<string>()
@@ -39,11 +46,19 @@ export function AddSongModal({ customMeta, allSongs, onAdd, onClose }: Props) {
     return map
   }, [customMeta, allSongs])
 
+  const handleLanguageChange = (code: string) => {
+    setLanguage(code)
+    setName('')
+    setNameRomanized('')
+  }
+
   const handleSubmit = async () => {
     if (!name.trim()) return
     setSaving(true)
     await onAdd({
       name: name.trim(),
+      nameRomanized: nameRomanized.trim() || name.trim(),
+      language: selectedLang?.label || '',
       tags,
       links,
       vocalist,
@@ -62,15 +77,42 @@ export function AddSongModal({ customMeta, allSongs, onAdd, onClose }: Props) {
         </div>
         <div className="modal-body">
           <div className="form-group">
-            <label className="form-label">Song Name *</label>
-            <input
-              type="text"
+            <label className="form-label">Language</label>
+            <select
               className="input"
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder="Enter song name"
-              autoFocus
-            />
+              value={language}
+              onChange={e => handleLanguageChange(e.target.value)}
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Song Name *</label>
+            {itc ? (
+              <TransliterateInput
+                value={name}
+                romanized={nameRomanized}
+                itc={itc}
+                onChangeNative={setName}
+                onChangeRomanized={setNameRomanized}
+                placeholder="Type in English, it will transliterate..."
+              />
+            ) : (
+              <input
+                type="text"
+                className="input"
+                value={name}
+                onChange={e => {
+                  setName(e.target.value)
+                  setNameRomanized(e.target.value)
+                }}
+                placeholder="Enter song name"
+                autoFocus
+              />
+            )}
           </div>
 
           <div className="form-group">

@@ -35,13 +35,15 @@ export async function getSongs(spreadsheetId: string): Promise<Song[]> {
     const song: Song = {
       id: get('ID'),
       name: get('Name'),
+      nameRomanized: get('NameRomanized'),
+      language: get('Language'),
       tags: parseMultiValue(get('Tags')),
       dateAdded: get('DateAdded'),
       links: parseMultiValue(get('Links')),
       vocalist: parseMultiValue(get('Vocalist')),
       custom: {},
     }
-    const builtInCols = ['ID', 'Name', 'Tags', 'DateAdded', 'Links', 'Vocalist']
+    const builtInCols = ['ID', 'Name', 'NameRomanized', 'Language', 'Tags', 'DateAdded', 'Links', 'Vocalist']
     headers.forEach((h, i) => {
       if (!builtInCols.includes(h)) {
         song.custom[h] = parseMultiValue(row[i] || '')
@@ -63,6 +65,8 @@ export async function addSong(
     switch (h) {
       case 'ID': return id
       case 'Name': return song.name
+      case 'NameRomanized': return song.nameRomanized
+      case 'Language': return song.language
       case 'Tags': return encodeMultiValue(song.tags)
       case 'DateAdded': return dateAdded
       case 'Links': return encodeMultiValue(song.links)
@@ -269,13 +273,15 @@ export function parseSongsFromRaw(rows: string[][]): Song[] {
     const song: Song = {
       id: get('ID'),
       name: get('Name'),
+      nameRomanized: get('NameRomanized'),
+      language: get('Language'),
       tags: parseMultiValue(get('Tags')),
       dateAdded: get('DateAdded'),
       links: parseMultiValue(get('Links')),
       vocalist: parseMultiValue(get('Vocalist')),
       custom: {},
     }
-    const builtInCols = ['ID', 'Name', 'Tags', 'DateAdded', 'Links', 'Vocalist']
+    const builtInCols = ['ID', 'Name', 'NameRomanized', 'Language', 'Tags', 'DateAdded', 'Links', 'Vocalist']
     headers.forEach((h, i) => {
       if (!builtInCols.includes(h)) {
         song.custom[h] = parseMultiValue(row[i] || '')

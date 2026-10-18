@@ -34,6 +34,8 @@ export async function createPlaylist(name: string): Promise<PlaylistInfo> {
               values: [
                 { userEnteredValue: { stringValue: 'ID' } },
                 { userEnteredValue: { stringValue: 'Name' } },
+                { userEnteredValue: { stringValue: 'NameRomanized' } },
+                { userEnteredValue: { stringValue: 'Language' } },
                 { userEnteredValue: { stringValue: 'Tags' } },
                 { userEnteredValue: { stringValue: 'DateAdded' } },
                 { userEnteredValue: { stringValue: 'Links' } },

@@ -746,6 +746,99 @@ a:hover {
   color: var(--text-muted);
 }
 
+.song-name-group {
+  flex: 1;
+  min-width: 0;
+}
+.song-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.song-language {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.song-romanized {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+/* ============================================
+   Transliterate Input
+   ============================================ */
+
+.translit-input-wrapper { position: relative; }
+.translit-display {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  min-height: 38px;
+  cursor: text;
+}
+.translit-display:focus-within { border-color: var(--accent); }
+.translit-committed { color: var(--text); font-size: 0.875rem; }
+.translit-typing {
+  border: none;
+  background: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  outline: none;
+  flex: 1;
+  min-width: 80px;
+  padding: 2px 4px;
+}
+.translit-typing::placeholder { color: var(--text-muted); }
+.translit-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 50;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  list-style: none;
+  margin-top: 4px;
+  min-width: 200px;
+}
+.translit-suggestions li {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.translit-suggestions li:hover,
+.translit-suggestions li.selected { background: var(--bg-hover); }
+.translit-suggestion-num {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  min-width: 14px;
+}
+.translit-suggestion-text { font-size: 1rem; }
+.translit-romanized {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+  font-style: italic;
+}
+
 /* ============================================
    Empty State
    ============================================ */

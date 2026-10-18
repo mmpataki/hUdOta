@@ -1,5 +1,4 @@
 import type { Song, MetaKey } from '../types'
-
 interface Props {
   song: Song
   customMeta: MetaKey[]
@@ -11,7 +10,15 @@ export function SongCard({ song, customMeta, onRemove, readOnly }: Props) {
   return (
     <div className="song-card">
       <div className="song-card-header">
-        <h3 className="song-name">{song.name}</h3>
+        <div className="song-name-group">
+          <div className="song-name-row">
+            <h3 className="song-name">{song.name}</h3>
+            {song.language && <span className="song-language">{song.language}</span>}
+          </div>
+          {song.nameRomanized && song.nameRomanized !== song.name && (
+            <div className="song-romanized">{song.nameRomanized}</div>
+          )}
+        </div>
         {!readOnly && (
           <button
             className="btn btn-icon btn-danger-subtle song-remove"

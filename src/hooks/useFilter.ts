@@ -24,6 +24,7 @@ export function useFilter(songs: Song[], customMeta: MetaKey[]) {
       case 'tags': return song.tags
       case 'vocalist': return song.vocalist
       case 'links': return song.links
+      case 'language': return song.language ? [song.language] : []
       default: return song.custom[key] || []
     }
   }, [])
@@ -80,9 +81,10 @@ export function useFilter(songs: Song[], customMeta: MetaKey[]) {
       if (search) {
         const q = search.toLowerCase()
         const nameMatch = song.name.toLowerCase().includes(q)
+        const romanizedMatch = song.nameRomanized?.toLowerCase().includes(q)
         const tagMatch = song.tags.some(t => t.toLowerCase().includes(q))
         const vocalistMatch = song.vocalist.some(v => v.toLowerCase().includes(q))
-        if (!nameMatch && !tagMatch && !vocalistMatch) return false
+        if (!nameMatch && !romanizedMatch && !tagMatch && !vocalistMatch) return false
       }
 
       for (const [facetKey, selectedValues] of Object.entries(selectedFacets)) {
