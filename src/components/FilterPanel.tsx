@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { FacetFilter } from './FacetFilter'
 import type { Facet } from '../hooks/useFilter'
 
 interface Props {
@@ -20,11 +19,20 @@ export function FilterPanel({
   onToggle, onClearFacet, onClearAll, hasActiveFilters,
   songCount, totalCount,
 }: Props) {
-  const [mobileOpen, setMobileOpen] = useState(false)
+  const [expandedFacet, setExpandedFacet] = useState<string | null>(null)
+
+  const activeChips: { facetKey: string; facetLabel: string; value: string }[] = []
+  for (const [key, values] of Object.entries(selectedFacets)) {
+    const facet = facets.find(f => f.key === key)
+    if (!facet) continue
+    for (const v of values) {
+      activeChips.push({ facetKey: key, facetLabel: facet.label, value: v })
+    }
+  }
 
   return (
-    <>
-      <div className="filter-bar">
+    <div className="filter-section">
+      <div className="filter-top">
         <div className="search-box">
           <svg className="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" />
@@ -43,50 +51,74 @@ export function FilterPanel({
             </button>
           )}
         </div>
-        <div className="filter-bar-meta">
-          <span className="song-count">
-            {songCount === totalCount ? `${totalCount} songs` : `${songCount} of ${totalCount}`}
-          </span>
-          {hasActiveFilters && (
-            <button className="btn btn-link btn-xs" onClick={onClearAll}>Clear filters</button>
-          )}
+
+        <div className="filter-facet-buttons">
+          {facets.map(f => (
+            <button
+              key={f.key}
+              className={`btn btn-sm filter-facet-btn ${selectedFacets[f.key]?.size ? 'active' : ''} ${expandedFacet === f.key ? 'open' : ''}`}
+              onClick={() => setExpandedFacet(expandedFacet === f.key ? null : f.key)}
+            >
+              {f.label}
+              {selectedFacets[f.key]?.size ? ` (${selectedFacets[f.key].size})` : ''}
+              <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 5l3 3 3-3" />
+              </svg>
+            </button>
+          ))}
         </div>
-        <button
-          className="btn btn-icon filter-mobile-toggle"
-          onClick={() => setMobileOpen(!mobileOpen)}
-          title="Toggle filters"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />
-          </svg>
-          {hasActiveFilters && <span className="filter-badge" />}
-        </button>
+
+        <span className="song-count">
+          {songCount === totalCount ? `${totalCount} songs` : `${songCount} / ${totalCount}`}
+        </span>
       </div>
 
-      <aside className={`filter-panel ${mobileOpen ? 'open' : ''}`}>
-        <div className="filter-panel-header">
-          <h2>Filters</h2>
-          <button className="btn btn-icon filter-close" onClick={() => setMobileOpen(false)}>
-            &times;
-          </button>
+      {activeChips.length > 0 && (
+        <div className="filter-active-chips">
+          {activeChips.map((c, i) => (
+            <button key={i} className="chip chip-active" onClick={() => onToggle(c.facetKey, c.value)}>
+              <span className="chip-facet-label">{c.facetLabel}:</span> {c.value}
+              <span className="chip-remove">&times;</span>
+            </button>
+          ))}
+          <button className="btn btn-link btn-xs" onClick={onClearAll}>Clear all</button>
         </div>
-        {facets.map(f => (
-          <FacetFilter
-            key={f.key}
-            label={f.label}
-            facetKey={f.key}
-            options={f.options}
-            selected={selectedFacets[f.key] || new Set()}
-            onToggle={onToggle}
-            onClear={onClearFacet}
-          />
-        ))}
-        {facets.length === 0 && (
-          <p className="filter-empty">Add songs to see filters</p>
-        )}
-      </aside>
+      )}
 
-      {mobileOpen && <div className="backdrop" onClick={() => setMobileOpen(false)} />}
-    </>
+      {expandedFacet && (
+        <div className="filter-dropdown">
+          {(() => {
+            const facet = facets.find(f => f.key === expandedFacet)
+            if (!facet) return null
+            const selected = selectedFacets[expandedFacet] || new Set<string>()
+            return (
+              <>
+                <div className="filter-dropdown-header">
+                  <span>{facet.label}</span>
+                  {selected.size > 0 && (
+                    <button className="btn btn-link btn-xs" onClick={() => onClearFacet(expandedFacet)}>Clear</button>
+                  )}
+                </div>
+                <div className="filter-dropdown-options">
+                  {facet.options.map(opt => (
+                    <label key={opt.value} className={`filter-option ${selected.has(opt.value) ? 'selected' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={selected.has(opt.value)}
+                        onChange={() => onToggle(expandedFacet, opt.value)}
+                      />
+                      <span className="filter-option-label">{opt.value}</span>
+                      <span className="filter-option-count">{opt.count}</span>
+                    </label>
+                  ))}
+                </div>
+              </>
+            )
+          })()}
+        </div>
+      )}
+
+      {expandedFacet && <div className="backdrop" onClick={() => setExpandedFacet(null)} />}
+    </div>
   )
 }

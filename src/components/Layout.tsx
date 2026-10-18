@@ -9,6 +9,8 @@ import { ThemeToggle } from './ThemeToggle'
 import { usePlaylist } from '../hooks/usePlaylist'
 import { useFilter } from '../hooks/useFilter'
 
+const LAST_PLAYLIST_KEY = 'last_playlist_id'
+
 export function Layout() {
   const { userName, userPhoto, signOut } = useAuth()
   const playlist = usePlaylist()
@@ -18,8 +20,20 @@ export function Layout() {
   const [showUserMenu, setShowUserMenu] = useState(false)
 
   useEffect(() => {
-    playlist.loadPlaylists()
+    playlist.loadPlaylists().then(list => {
+      if (list.length > 0 && !playlist.currentPlaylist) {
+        const lastId = localStorage.getItem(LAST_PLAYLIST_KEY)
+        const target = list.find(p => p.id === lastId) || list[0]
+        playlist.selectPlaylist(target)
+      }
+    })
   }, [])
+
+  useEffect(() => {
+    if (playlist.currentPlaylist) {
+      localStorage.setItem(LAST_PLAYLIST_KEY, playlist.currentPlaylist.id)
+    }
+  }, [playlist.currentPlaylist])
 
   const handleAddSong = useCallback(async (song: Parameters<typeof playlist.addSong>[0]) => {
     await playlist.addSong(song)
@@ -101,7 +115,7 @@ export function Layout() {
             />
           </main>
         </div>
-      ) : (
+      ) : !playlist.loading ? (
         <div className="empty-state welcome-state">
           <div className="empty-state-icon">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity="0.5">
@@ -111,9 +125,9 @@ export function Layout() {
             </svg>
           </div>
           <h2>Welcome!</h2>
-          <p>Create or select a playlist to get started</p>
+          <p>Create a playlist to get started</p>
         </div>
-      )}
+      ) : null}
 
       {showAddModal && playlist.currentPlaylist && (
         <AddSongModal
